@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<header class="title"> Mean Cat Madness </header>
+<p> Collect all the Orange Ball or Face the Wrath of Mean Cat</p>
+
+<canvas id="myCanvas" width="950" height="600" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<img id="meancat" width="0" height="0" src="https://jooinn.com/images/cat-face-1.jpg" alt="meancat">
+
+<style>
+body{background-color: pink; text-align: center;}
+header {color: Aqua ;font-size: 5rem;}
+p {color: #0E6655;font-size: 1.5rem;}
+</style>
+
+
+
+<script>
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+
+var game = {score: 0, lives: 3, state: "play", level: 1};
+
+var gameObjects = [];
+
+gameObjects.push({type: "player", x:10, y:150, r: 10, color:"aqua",speed:15});
+
+gameObjects.push({type: "harm", x:100, y:75, r:5, color:"black", speed:3});
+
+gameObjects.push({type: "benefit", x:20, y:25, r:15, color:"orangered", speed:3});
+
+var player = gameObjects[0];
+
+var backgroundImg = new Image();
+backgroundImg.src = "birds.jpg";
+
+ctx.font = "20px Helvetica";
+ctx.fillStyle = "red";
+ctx.textAlign = "center";
+
+function draw() {
+  // clear canvas
+  ctx.clearRect(0,0,c.width, c.height);
+  ctx.drawImage(backgroundImg, 0, 0);
+
+
+  // draw objects
+  
+  for (idx in gameObjects) {
+    g = gameObjects[idx];
+    ctx.beginPath();
+    ctx.arc(g.x, g.y, g.r, 0, 2 * Math.PI);
+    
+    var img = document.getElementById("meancat");
+    ctx.drawImage(img, 850, 0, 80, 80);
+
+    //ctx.stroke();
+    ctx.fillStyle = g.color;
+    ctx.fill();
+
+
+    if (g.type != "player") {
+
+      g.x -= g.speed * 0.5*game.level;
+
+      if (colliding(player,g)) {
+        if (g.type == "harm") {
+          game.lives --;
+        } else if (g.type == "benefit"){
+          game.score += 500;
+
+          if (game.score % 100 == 0) {
+            game.level ++;
+            
+            if (game.level % 2 == 0) {
+                gameObjects.push({type: "harm", x:100, y:75, r:10, color:"purple", speed:1});
+
+            }
+
+            if (game.level % 3 == 0) {
+            gameObjects.push({type: "harm", x:100, y:75, r:5, color:"yellow", speed:1});
+            }
+            
+          }
+
+        }
+        console.log(game);
+        
+        g.state = "collision"
+      }
+
+
+
+      if ( (g.x + g.r < 0)  || g.state == "collision") {
+          g.x = c.width + g.r;
+          g.y = Math.random() * (c.height - 0) + 0;
+          g.state = "";
+        } 
+    }
+  }
+
+  // draw text
+  ctx.fillText("YarnBall: " + game.score + " - Lives: " + game.lives, c.width/2, 30); 
+
+  
+  // next frame
+  if (game.lives > 0) {
+    window.requestAnimationFrame (draw);
+  } else {
+    gameOver();
+  }
+  
+}
+
+
+function gameOver() {
+  ctx.clearRect(0,0,c.width, c.height);
+  ctx.drawImage(backgroundImg, 0, 0);
+  ctx.fillText("Game Over", c.width/2, c.height/2);
+
+}
+
+
+window.requestAnimationFrame (draw);
+
+
+function colliding (circle1, circle2) {
+  var result = false;
+
+  var dx = circle1.x - circle2.x;
+  var dy = circle1.y - circle2.y;
+  var distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance < circle1.r + circle2.r){
+      // collision detected!
+      result = true;
+  }
+  
+
+  return result;
+}
+
+document.onkeydown = checkKey;
+
+function checkKey(e) {
+
+    e = e || window.event;
+
+    // console.log(e);
+    if (e.keyCode == '38') {
+        // up arrow
+        player.y -= player.speed;
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+        player.y += player.speed;
+    }
+    else if (e.keyCode == '37') {
+       // left arrow
+    }
+    else if (e.keyCode == '39') {
+       // right arrow
+    }
+
+}
+
+
+
+</script> 
+
+</body>
+</html>
+
